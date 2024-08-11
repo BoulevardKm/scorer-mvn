@@ -1,6 +1,8 @@
 package com.fm.recommender.impl;
 
 import com.fm.recommender.Scorer;
+import com.fm.recommender.db.Db;
+import com.fm.recommender.db.InMemDb;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +17,8 @@ public class RecommenderServiceImplTest {
     @BeforeEach
     void setUp() {
         Scorer<Movie, User> scorer = new ScorerImpl();
-        recommenderService = new RecommenderServiceImpl<>(scorer);
+        Db db = new InMemDb();
+        recommenderService = new RecommenderServiceImpl<>(scorer, db);
     }
     @Test
     void testAddMovie() {
