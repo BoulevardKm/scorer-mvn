@@ -9,7 +9,7 @@ import java.util.List;
 
 public class RecommenderServiceImpl<Movie, User> implements RecommenderService<Movie, User> {
     private Scorer<Movie, User> scorer;
-    private List<Movie> movies = new ArrayList<>(); // TODO: remove movie list init from here
+    private List<Movie> movies;
     private final Db db;
 
     RecommenderServiceImpl(Scorer<Movie, User> scorer, Db db) {
@@ -20,6 +20,8 @@ public class RecommenderServiceImpl<Movie, User> implements RecommenderService<M
     @Override
     public List<Movie> getTop(User user, int limit) {
         // TODO: lazy initialization for movie list
+        movies = new ArrayList<>();
+        movies.addAll(movies);
 
         List<Movie> allMovies = movies;
         allMovies.sort((m1, m2) -> Double.compare(scorer.getScore(m2, user), scorer.getScore(m1, user)));
@@ -29,6 +31,6 @@ public class RecommenderServiceImpl<Movie, User> implements RecommenderService<M
     @Override
     public void addMovie(Movie movie) {
         movies.add(movie);
-        // TODO: save movie in db
+        db.saveMovie((com.fm.recommender.impl.Movie) movie);
     }
 }
