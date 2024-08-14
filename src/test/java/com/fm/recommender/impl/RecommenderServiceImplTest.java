@@ -13,11 +13,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class RecommenderServiceImplTest {
     private RecommenderServiceImpl<Movie, User> recommenderService;
+    private Scorer<Movie, User> scorer;
+    private Db db;
 
     @BeforeEach
     void setUp() {
-        Scorer<Movie, User> scorer = new ScorerImpl();
-        Db db = new InMemDb();
+        scorer = new ScorerImpl();
+        db = new InMemDb();
         recommenderService = new RecommenderServiceImpl<>(scorer, db);
     }
     @Test
@@ -62,6 +64,47 @@ public class RecommenderServiceImplTest {
         assertEquals("Interstellar", topMoviesLimit4.get(0).getTitle());
         assertEquals("Inception", topMoviesLimit4.get(1).getTitle());
         assertEquals("Twilight", topMoviesLimit4.get(2).getTitle());
+
+    }
+
+
+    @Test
+    public void testNewRecommenderService() {
+
+        recommenderService.addMovie(new Movie(
+                UUID.randomUUID().toString(),
+                "Interstellar",
+                "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
+                new double[] {9.2, 9.3}));
+
+        Scorer<Movie, User> newScorer = new ScorerImpl();
+
+        RecommenderServiceImpl<Movie, User> newRecommenderService = new RecommenderServiceImpl<>(newScorer, db);
+
+
+        List<Movie> topMovies = newRecommenderService.getTop(new User(
+                UUID.randomUUID().toString(),
+                "Maxim",
+                new double[] {2., 3.}), 1);
+
+        assertEquals(1, topMovies.size());
+        assertEquals("Interstellar", topMovies.get(0).getTitle());
+
+
+        newRecommenderService.addMovie(new Movie(
+                UUID.randomUUID().toString(),
+                "Matrix",
+                "Test",
+                new double[] {10.0, 10.0}));
+
+        List<Movie> topMovies1 = newRecommenderService.getTop(new User(
+                UUID.randomUUID().toString(),
+                "Maxim",
+                new double[] {2., 3.}), 2);
+        assertEquals(2, topMovies1.size());
+        assertEquals("Matrix",  topMovies1.get(0).getTitle());
+        assertEquals("Interstellar",  topMovies1.get(1).getTitle());
+
 
     }
 }

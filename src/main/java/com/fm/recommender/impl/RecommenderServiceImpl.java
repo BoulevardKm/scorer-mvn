@@ -5,6 +5,7 @@ import com.fm.recommender.Scorer;
 import com.fm.recommender.db.Db;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class RecommenderServiceImpl<Movie, User> implements RecommenderService<Movie, User> {
@@ -19,17 +20,22 @@ public class RecommenderServiceImpl<Movie, User> implements RecommenderService<M
 
     @Override
     public List<Movie> getTop(User user, int limit) {
-        // TODO: lazy initialization for movie list
-        movies = new ArrayList<>();
-        movies.addAll(movies);
+        init();
 
         List<Movie> allMovies = movies;
         allMovies.sort((m1, m2) -> Double.compare(scorer.getScore(m2, user), scorer.getScore(m1, user)));
-        return allMovies.subList(0, Math.min(limit, allMovies.size()));
+        return new ArrayList<>(allMovies.subList(0, Math.min(limit, allMovies.size())));
+    }
+
+    private void init() {
+        if (movies == null) {
+            movies = new ArrayList<>((Collection<? extends Movie>) db.getAllMovies());
+        }
     }
 
     @Override
     public void addMovie(Movie movie) {
+        init();
         movies.add(movie);
         db.saveMovie((com.fm.recommender.impl.Movie) movie);
     }
